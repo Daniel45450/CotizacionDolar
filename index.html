@@ -22,6 +22,31 @@
     <main class="contenedor">
         <div class="bloques"></div>
     </main>
+    <section class="contenedor contenedor-calculadora">
+        <div class="calculadora">
+            <h2>Convertidor de Moneda</h2>
+            <div class="campos">
+                <div class="campo">
+                    <label class="calculadora__label" for="moneda">Monto a convertir</label>
+                    <input class="calculadora__input" type="number" id="moneda">
+                </div>
+                <div class="campo">
+                    <label class="calculadora__label" for="convertidorOpciones">Metodo de Conversion</label>
+                    <select class="calculadora__input" name="convertidorOpciones" id="convertidorOpciones">
+                        <option selected disabled>- Opciones</option>
+                        <option value="1">Peso a Dolar</option>
+                        <option value="2">Dolar a Peso</option>
+                    </select>
+                </div>
+                <div class="resultado">
+                    <h2>Resultado</h2>
+                    <p id="resultado_total" class="resultado__precio">$200</p>
+                </div>
+            </div>
+
+            <input type="button" class="btn btn-calculadora" value="Calcular">
+        </div>
+    </section>
     <footer class="footer">
         <p class="footer__texto">Todo los derechos reservados &#9400 2022 - Daniel Gabinari</p>
     </footer>
