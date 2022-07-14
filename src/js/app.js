@@ -23,8 +23,10 @@ async function procesadarDatos() {
         let nombre = element.casa.nombre;
         titulo.classList.add('bloque__titulo');
         titulo.textContent = nombre;
+
         let precioCompra = formatearPrecio(element.casa.compra);
         let precioVenta = formatearPrecio(element.casa.venta);
+
         nombre = nombre.replace(/ /g,'');
         venta.id = nombre.toLowerCase(); 
         compra.innerHTML = `Compra <span class="bloque__precio"> ${precioCompra}</span>`;
@@ -45,10 +47,21 @@ async function procesadarDatos() {
 }
 
 function formatearPrecio(precio) {
-    let precioFormateado = parseFloat(precio).toLocaleString('es-AR', {
-        style: 'currency',
-        currency: 'ARS'          
-    })    
+    precio = precio.replace(".", "");
+    precio = precio.replace(",", ".");
+    precio = Number(precio);
+
+    let precioFormateado;
+    
+    if(isNaN(precio)) {
+        precioFormateado = "No cotiza";
+    } else {
+        precioFormateado = Number(precio).toLocaleString('es-AR', {
+            style: 'currency',
+            currency: 'ARS'          
+        })   
+    }
+ 
     return precioFormateado;
 }
 
