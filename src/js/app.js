@@ -85,14 +85,12 @@ async function procesadarDatos(cotizaciones) {
     } catch (error) {
         console.log(error);
     }
-
-    console.log('datos cargados');
 }
 
 function formatearPrecio(precio) {
     precio = precio.replace(".", "");
     precio = precio.replace(",", ".");
-    precio = Number(precio);
+    precio = Number(precio).toFixed(2);
 
     let precioFormateado;
     
