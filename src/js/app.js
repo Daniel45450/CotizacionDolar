@@ -1,3 +1,63 @@
+class Cotizacion {
+
+    nombre = "";
+    precio_compra = 0;
+    precio_venta = 0;
+    variacion = 0;
+
+    constructor(nombre, precio_compra, precio_venta, variacion) {
+        this.nombre = nombre;
+        this.precio_compra = precio_compra;
+        this.precio_venta = precio_venta;
+        this.variacion = variacion;
+    }
+
+    get nombre() {
+        return this.nombre;
+    }
+
+    get precio_compra() {
+        return this.precio_compra;
+    }
+
+    get precio_venta() {
+        return this.precio_venta;
+    }
+
+    get variacion() {
+        return this.variacion;
+    }
+
+    set precio_compra(precio) {
+        this.precio_compra = precio;
+    }
+
+    set precio_venta(precio) {
+        this.precio_venta = precio;
+    }
+
+    set variacion(variacion) {
+        this.variacion = variacion;
+    }
+}
+
+class Cotizaciones {
+    cotizaciones = [];
+
+    obtenerCotizacion(nombre) {
+        return this.cotizaciones.find(c => c.nombre === nombre);
+    }
+
+    agregarCotizacion(cotizacion) {
+        this.cotizaciones.push(cotizacion);
+    }
+
+    obtenerCotizaciones() {
+        return this.cotizaciones;
+    }
+}
+
+const cotizaciones = new Cotizaciones();
 
 async function obtenerPrecios() {
     const url = 'https://www.dolarsi.com/api/api.php?type=valoresprincipales';
@@ -10,39 +70,22 @@ async function obtenerPrecios() {
     }
 }
 
-async function procesadarDatos() {
-    const datos = await obtenerPrecios();
-    
-    datos.forEach( (element, index) => {
-        let bloque = document.createElement('DIV');
-        let titulo = document.createElement('H2');
-        let contenido = document.createElement('DIV');
-        let compra = document.createElement('P');
-        let venta = document.createElement('P');
+async function procesadarDatos(cotizaciones) {
+    try {
+        const datos = await obtenerPrecios();
+        for(x of datos) {
 
-        let nombre = element.casa.nombre;
-        titulo.classList.add('bloque__titulo');
-        titulo.textContent = nombre;
+            const nombre = x.casa.nombre;
+            const precio_compra = formatearPrecio(x.casa.compra);
+            const precio_venta = formatearPrecio(x.casa.venta);
+            const variacion = formatearPrecio(x.casa.variacion);
+            cotizacion = new Cotizacion(nombre, precio_compra, precio_venta, variacion);
+            cotizaciones.agregarCotizacion(cotizacion);
+        }
+    } catch (error) {
+        console.log(error);
+    }
 
-        let precioCompra = formatearPrecio(element.casa.compra);
-        let precioVenta = formatearPrecio(element.casa.venta);
-
-        nombre = nombre.replace(/ /g,'');
-        venta.id = nombre.toLowerCase(); 
-        compra.innerHTML = `Compra <span class="bloque__precio"> ${precioCompra}</span>`;
-        venta.innerHTML = `Venta <span class="bloque__precio"> ${precioVenta} </span>`;
-
-        contenido.classList.add('bloque__contenido');
-        contenido.appendChild(compra);
-        contenido.appendChild(venta);
-
-        bloque.classList.add('bloque');
-
-        bloque.appendChild(titulo);
-        bloque.appendChild(contenido);
-
-        document.querySelector('.bloques').appendChild(bloque);
-    });
     console.log('datos cargados');
 }
 
@@ -56,10 +99,7 @@ function formatearPrecio(precio) {
     if(isNaN(precio)) {
         precioFormateado = "No cotiza";
     } else {
-        precioFormateado = Number(precio).toLocaleString('es-AR', {
-            style: 'currency',
-            currency: 'ARS'          
-        })   
+        precioFormateado = precio;
     }
  
     return precioFormateado;
@@ -107,10 +147,10 @@ function calculadora() {
             let operacion = 0;
             if(opcionSeleccionada === 1) {
                 operacion = cantidad / precio;
-                resultado.textContent = `${cantidad} Pesos son ${formatearPrecio(operacion)} Dolares`;
+                resultado.textContent = `${cantidad} Pesos son ${operacion} Dolares`;
             } else {
                 operacion = cantidad * precio;
-                resultado.textContent = `${cantidad} Dolares son ${formatearPrecio(operacion)} Pesos`;                
+                resultado.textContent = `${cantidad} Dolares son ${operacion} Pesos`;                
             }
 
             const conteResultado = document.querySelector('.resultado');
@@ -127,7 +167,6 @@ function calculadora() {
             setTimeout(eliminarResultado,5000);
         } else {
             const contenedorErrores = document.querySelector('.contenedorErrores');
-            console.log(errores.length);
             for(let i =0; i<errores.length; i++) {
                 let p = document.createElement("P");
                 p.classList.add('error');
@@ -150,9 +189,71 @@ function calculadora() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    procesadarDatos();
+function comprobarNombres(cotizacion) {
+    if(cotizacion.nombre !== "Dolar Soja" && cotizacion.nombre !== "Bitcoin" && cotizacion.nombre !== "Argentina") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function mostrarDatos(cotizaciones) {
+    const datos = cotizaciones.obtenerCotizaciones().filter(comprobarNombres);
+
+    console.log(datos);
+    datos.forEach( (element, index) => {
+        let bloque = document.createElement('DIV');
+        let titulo = document.createElement('H2');
+        let contenido = document.createElement('DIV');
+        let compra = document.createElement('P');
+        let venta = document.createElement('P');
+
+        let nombre = element.nombre;
+
+        if(nombre === "Dolar Contado con Liqui") {
+            nombre = "Dolar CCL";
+        }
+
+        titulo.classList.add('bloque__titulo');
+        titulo.textContent = nombre;
+
+        /*
+        precioFormateado = Number(precio).toLocaleString('es-AR', {
+            style: 'currency',
+            currency: 'ARS'          
+        })   */
+
+        let precioCompra = `$ ${element.precio_compra}`;
+        let precioVenta = `$ ${element.precio_venta}`;
+
+        nombre = nombre.replace(/ /g,'');
+        venta.id = nombre.toLowerCase(); 
+        compra.innerHTML = `Compra <span class="bloque__precio"> ${precioCompra}</span>`;
+        venta.innerHTML = `Venta <span class="bloque__precio"> ${precioVenta} </span>`;
+
+        contenido.classList.add('bloque__contenido');
+        contenido.appendChild(compra);
+        contenido.appendChild(venta);
+
+        bloque.classList.add('bloque');
+
+        bloque.appendChild(titulo);
+        bloque.appendChild(contenido);
+
+        document.querySelector('.bloques').appendChild(bloque);
+
+        
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
     darkMode();
-    calculadora();
+    try {
+        await procesadarDatos(cotizaciones);  
+        mostrarDatos(cotizaciones);
+        calculadora();   
+    } catch (error) {
+        console.log(error);
+    }
 });
 
